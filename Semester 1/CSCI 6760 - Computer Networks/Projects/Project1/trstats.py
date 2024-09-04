@@ -57,46 +57,6 @@ def run_traceroute(target, max_hops):   # The arguments: target(str): target hos
 ## This function parses the output of the traceroute command and extracts hop information.
 ## It returns a list of dictionaries containing parsed hop information.
 
-'''
-def parse_traceroute_output(output):
-    hops = []
-    latency = re.compile(r'(\d+\.\d+)\s+ms')        # Regular expression to match latency in ms
-
-    for line in output:
-        if not line or line.startswith("traceroute"):
-            continue
-        parts = line.split()
-
-        # Check if the first part is hop number
-        try:
-            hop_number = int(parts[0])
-            hosts = []
-            latencies = []
-
-            for part in parts[1:]:
-                if re.match(r'\d+\.\d+\.\d+', part):    # Check if IPv4 address
-                    hosts.append((part, f"({part})"))
-                elif part.startswith('(') and part.endswith(')'):
-                    hosts.append((parts[1], part))
-                elif latency_match := latency.match(part):
-                    latencies.append(float(latency_match.group(1)))
-
-            if latencies:
-                hop_info = {
-                    'hop': hop_number,
-                    'hosts': hosts,
-                    'min': np.min(latencies),
-                    'max': np.max(latencies),
-                    'med': np.median(latencies),
-                    'avg': np.mean(latencies)
-                }
-                hops.append(hop_info)
-        except ValueError:
-            # If the first part is not a number, skip the line
-            print(f"Skipping line: {line}" + " due to unexpected format")
-    return hops
-'''
-
 def parse_traceroute_output(output):    # The argument: output(list): output of the traceroute command
     hops = []
     latency_regex = re.compile(r'(\d+\.\d+)\s+ms')  # Reg expression to match latency in ms
@@ -137,42 +97,7 @@ def parse_traceroute_output(output):    # The argument: output(list): output of 
 # Calculate and save latency statistics
 ## Calculates lantency statistics for each hop
 ## Returns a list of dictionaries containing the hop statistics
-'''
-def calculate_latency_stats(hops):
-    latency_stats = {}
 
-    # Aggregate latency data for each hop
-    for hop in hops:
-        hop_num = hop['hop']
-        if hop_num not in latency_stats:
-            latency_stats[hop_num] = {
-                'hosts': hop['hosts'],
-                # 'latencies': hop['latencies']
-                'latencies': []
-            }
-        #latency_stats[hop_num]['latencies'].extend([hop['avg']])
-        latency_stats[hop_num]['latencies'].extend([hop['latencies']])
-
-    stats = []
-    for hop_num, data in latency_stats.items():
-        #latencies = np.array(data['latencies'])
-
-        latencies = np.array([item for sublist in data['latencies'] for item in sublist]
-                              if any(isinstance(i, list) for i in data['latencies'])
-                              else data['latencies'])
-
-        # Ensure latencies is not empty before calculating statistics
-        if len(latencies) > 0:
-            stats.append({
-                'hop': hop_num,
-                'hosts': data['hosts'],
-                'min': np.min(latencies),
-                'max': np.max(latencies),
-                'med': np.median(latencies),
-                'avg': np.mean(latencies)
-            })
-    return stats
-'''
 def calculate_latency_stats(hops):      # The argument: hops(list): list of hop information
     latency_stats = {}
 
@@ -205,10 +130,11 @@ def calculate_latency_stats(hops):      # The argument: hops(list): list of hop 
     return stats
 
 
-
 # Handle pre-generated test files
+## Loads pre-generated test files from a directory
+## Returns a list of lists, where each inner list represents the line of a test file
 
-def load_pregen_test_files(test_dir):
+def load_pregen_test_files(test_dir):   # The argument: test_dir(str): directory containing test files
     test_ouput = []
     for filename in os.listdir(test_dir):
         if filename.endswith('.txt') or filename.endswith('.json'):
@@ -217,8 +143,9 @@ def load_pregen_test_files(test_dir):
     return test_output
 
 # Save output in JSON format
+## Saves the list of hop statistics as a JSON file
 
-def save_json(stats, output_file):
+def save_json(stats, output_file):    # The arguments: stats(list): list of hop statistics, output_file(str): name of the output JSON file
     test_json_output = []
 
     # Convert ndarray objects to list for JSON serialization
@@ -229,11 +156,12 @@ def save_json(stats, output_file):
     with open(output_file, 'w') as file:
         json.dump(stats, file, indent=2)
 
-# Plot a boxplot using latency statistics
+# Plot a boxplot of latency details for each hop
 
-def plot_latency_boxplot(stats, output_graph):
+def plot_latency_boxplot(stats, output_graph):  # The arguments: stats(list): list of hop statistics, output_graph(str): name of the output PDF file
     hops = []
     latencies = []
+
     for hop_stat in stats:
         hops.append(hop_stat['hop'])
         latencies.append(hop_stat['latencies'])
@@ -253,8 +181,8 @@ def plot_latency_boxplot(stats, output_graph):
     print("Length of hops: ", len(hops))
     print("Length of latencies:", len(latencies))
     
-
-    plt.figure(figsize=(10, 6))
+    # Create a boxplot
+    plt.figure(figsize=(10, 6))     # Set the figure size
     plt.boxplot(latencies, tick_labels=hops)        # Create a boxplot. Note: changed 'labels' to 'tick_labels' as 'labels' is deprecated
     plt.xlabel('Hop number')
     plt.ylabel('Latency (ms)')
@@ -263,18 +191,23 @@ def plot_latency_boxplot(stats, output_graph):
     plt.close()
 
 # Driver function
-
+## The main function that runs the traceroute script
+## Parses command-line arguments, runs traceroute based on arguments, parses output, calculates statistics and generates the JSON and boxplot graph
 def main():
+
+    # Parse command line arguments
     args = parse_arguments()
 
+    # Process data based on test or target
     if args.test:
-        test_ouput = load_pregen_test_files(args.test)
+        test_ouput = load_pregen_test_files(args.test)      # Load pre-generated test files
         hops_data_list = []
         for output in test_output:
             hop_data = parse_traceroute_output(output)
             hops_data_list.extend(hop_data)
         stats = calculate_latency_stats(hops_data_list)
     else:
+        # Run traceroute and parse output
         hops_data_list = []
         for _ in range(args.num_runs):
             output = run_traceroute(args.target, args.max_hops)
@@ -282,10 +215,10 @@ def main():
             hops_data_list.extend(hop_data)
             if args.run_delay > 0:
                 time.sleep(args.run_delay)
-        stats = calculate_latency_stats(hops_data_list)
+        stats = calculate_latency_stats(hops_data_list)     # Calculate latency statistics from collected data
 
-    save_json(stats, args.output)
-    plot_latency_boxplot(stats, args.graph)
+    save_json(stats, args.output)       # Save the statistics as a JSON file
+    plot_latency_boxplot(stats, args.graph)     # Plot a boxplot of latency details for each hop
 
 if __name__ == "__main__":
     main()
