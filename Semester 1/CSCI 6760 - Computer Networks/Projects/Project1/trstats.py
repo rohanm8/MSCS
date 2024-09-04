@@ -38,19 +38,24 @@ def parse_arguments():
 
 def run_traceroute(target, max_hops):   # The arguments: target(str): target host name/IP address, max_hops(int): maximum number of hops
     try:
+        traceroute_command = ['traceroute', '-m', str(max_hops), target]   # Build the traceroute command with arguments
+        
+        # Execute the traceroute command and store the output in the result variable
         result = subprocess.run(
-            ['traceroute', '-m', str(max_hops), target],
+            traceroute_command,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             universal_newlines=True
         )
-
         return result.stdout.splitlines()
+    
     except subprocess.CalledProcessError as e:
-        print("Error has occured: {e}")
-        return []
+        print("Error has occured: {e}")    # Print the error message
+        return []   # Return an empty list if an error occurs
 
 # Parse traceroute output
+## This function parses the output of the traceroute command and extracts hop information.
+## It returns a list of dictionaries containing parsed hop information.
 
 '''
 def parse_traceroute_output(output):
@@ -92,13 +97,12 @@ def parse_traceroute_output(output):
     return hops
 '''
 
-def parse_traceroute_output(output):
+def parse_traceroute_output(output):    # The argument: output(list): output of the traceroute command
     hops = []
-    #latency_regex = re.compile(r'(\d+\.\d+)\s+ms')  # Regex to match latency in ms
-    latency_regex = re.compile(r'(\d+\.\d+)\s+ms')  # Regex to match latency in ms
+    latency_regex = re.compile(r'(\d+\.\d+)\s+ms')  # Reg expression to match latency in ms
 
     #for line in output:
-    for i, line in enumerate(output):
+    for i, line in enumerate(output):   # This skips the header and empty lines
         if not line or line.startswith("traceroute"):
             continue
 
@@ -131,7 +135,8 @@ def parse_traceroute_output(output):
     return hops
 
 # Calculate and save latency statistics
-
+## Calculates lantency statistics for each hop
+## Returns a list of dictionaries containing the hop statistics
 '''
 def calculate_latency_stats(hops):
     latency_stats = {}
@@ -168,7 +173,7 @@ def calculate_latency_stats(hops):
             })
     return stats
 '''
-def calculate_latency_stats(hops):
+def calculate_latency_stats(hops):      # The argument: hops(list): list of hop information
     latency_stats = {}
 
     # Aggregate latency data per hop
