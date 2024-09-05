@@ -183,7 +183,7 @@ def plot_latency_boxplot(stats, output_graph):  # The arguments: stats(list): li
     
     # Create a boxplot
     plt.figure(figsize=(10, 6))     # Set the figure size
-    plt.boxplot(latencies, tick_labels=hops)        # Create a boxplot. Note: changed 'labels' to 'tick_labels' as 'labels' is deprecated
+    plt.boxplot(latencies, labels=hops)        # Create a boxplot. Note: changed 'labels' to 'tick_labels' as 'labels' is deprecated
     plt.xlabel('Hop number')
     plt.ylabel('Latency (ms)')
     plt.title('Latency distribution per hop')
