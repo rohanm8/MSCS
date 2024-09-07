@@ -8,8 +8,8 @@ import re           # Import re library for regular expressions
 import time        # Import time library for time-related functions - used in driver function
 
 # Function to handle user input in CLI
-## This function parses the command line arguments for traceroute implementation
-## and returns the parsed arguments
+    ## This function parses the command line arguments for traceroute implementation
+    ## and returns the parsed arguments
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Traceroute implementation')
@@ -34,7 +34,8 @@ def parse_arguments():
         parse.error('Invalid. Please specify valid target host with -t or test directory --test')
     return args
 
-# Run traceroute: This function runs the traceroute command and returns the output as a list
+# Run traceroute
+    ## This function runs the traceroute command and returns the output as a list
 
 def run_traceroute(target, max_hops):   # The arguments: target(str): target host name/IP address, max_hops(int): maximum number of hops
     try:
@@ -54,8 +55,8 @@ def run_traceroute(target, max_hops):   # The arguments: target(str): target hos
         return []   # Return an empty list if an error occurs
 
 # Parse traceroute output
-## This function parses the output of the traceroute command and extracts hop information.
-## It returns a list of dictionaries containing parsed hop information.
+    ## This function parses the output of the traceroute command and extracts hop information.
+    ## It returns a list of dictionaries containing parsed hop information.
 
 def parse_traceroute_output(output):    # The argument: output(list): output of the traceroute command
     hops = []
@@ -95,8 +96,8 @@ def parse_traceroute_output(output):    # The argument: output(list): output of 
     return hops
 
 # Calculate and save latency statistics
-## Calculates lantency statistics for each hop
-## Returns a list of dictionaries containing the hop statistics
+    ## Calculates lantency statistics for each hop
+    ## Returns a list of dictionaries containing the hop statistics
 
 def calculate_latency_stats(hops):      # The argument: hops(list): list of hop information
     latency_stats = {}
@@ -118,21 +119,26 @@ def calculate_latency_stats(hops):      # The argument: hops(list): list of hop 
         if len(data['latencies']) > 0:
             latencies = np.array(data['latencies'])
             stats.append({
+                'avg': np.mean(latencies),
                 'hop': hop_num,
                 'hosts': data['hosts'],
                 'latencies': latencies,  # Ensure 'latencies' key is present in the final stats dictionary
-                'min': np.min(latencies),
                 'max': np.max(latencies),
                 'med': np.median(latencies),
-                'avg': np.mean(latencies)
+                'min': np.min(latencies)
+
+                ## DELETE THE FOLLOWING LINES IN FINAL VERSION
+                #'max': np.max(latencies),
+                #'med': np.median(latencies),
+                #'avg': np.mean(latencies)
             })
 
     return stats
 
 
 # Handle pre-generated test files
-## Loads pre-generated test files from a directory
-## Returns a list of lists, where each inner list represents the line of a test file
+    ## Loads pre-generated test files from a directory
+    ## Returns a list of lists, where each inner list represents the line of a test file
 
 def load_pregen_test_files(test_dir):   # The argument: test_dir(str): directory containing test files
     test_ouput = []
@@ -143,7 +149,7 @@ def load_pregen_test_files(test_dir):   # The argument: test_dir(str): directory
     return test_output
 
 # Save output in JSON format
-## Saves the list of hop statistics as a JSON file
+    ## Saves the list of hop statistics as a JSON file
 
 def save_json(stats, output_file):    # The arguments: stats(list): list of hop statistics, output_file(str): name of the output JSON file
     test_json_output = []
@@ -183,7 +189,8 @@ def plot_latency_boxplot(stats, output_graph):  # The arguments: stats(list): li
     
     # Create a boxplot
     plt.figure(figsize=(10, 6))     # Set the figure size
-    plt.boxplot(latencies, labels=hops)        # Create a boxplot. Note: changed 'labels' to 'tick_labels' as 'labels' is deprecated
+    plt.boxplot(latencies, tick_labels=hops)        # Create a boxplot. Note: changed 'labels' to 'tick_labels' as 'labels' is deprecated Matplotlib 3.9 onwards
+    # plt.boxplot(latencies, labels=hops)      # Comment out previous line and use this if running on Matplotlib 3.8 or earlier
     plt.xlabel('Hop number')
     plt.ylabel('Latency (ms)')
     plt.title('Latency distribution per hop')
@@ -191,8 +198,8 @@ def plot_latency_boxplot(stats, output_graph):  # The arguments: stats(list): li
     plt.close()
 
 # Driver function
-## The main function that runs the traceroute script
-## Parses command-line arguments, runs traceroute based on arguments, parses output, calculates statistics and generates the JSON and boxplot graph
+    ## The main function that runs the traceroute script
+    ## Parses command-line arguments, runs traceroute based on arguments, parses output, calculates statistics and generates the JSON and boxplot graph
 def main():
 
     # Parse command line arguments
