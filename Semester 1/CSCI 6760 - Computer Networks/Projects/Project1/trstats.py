@@ -126,11 +126,6 @@ def calculate_latency_stats(hops):      # The argument: hops(list): list of hop 
                 'max': np.max(latencies),
                 'med': np.median(latencies),
                 'min': np.min(latencies)
-
-                ## DELETE THE FOLLOWING LINES IN FINAL VERSION
-                #'max': np.max(latencies),
-                #'med': np.median(latencies),
-                #'avg': np.mean(latencies)
             })
 
     return stats
@@ -181,11 +176,6 @@ def plot_latency_boxplot(stats, output_graph):  # The arguments: stats(list): li
     for i in range(len(latencies)):
         if not latencies[i]:
             latencies[i] = [np.nan]
-
-    # REMOVE IN FINAL VERSION
-    # Print length of hop and latencies for debugging
-    print("Length of hops: ", len(hops))
-    print("Length of latencies:", len(latencies))
     
     # Create a boxplot
     plt.figure(figsize=(10, 6))     # Set the figure size
